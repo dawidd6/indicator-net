@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=NET Indicator
+GenericName=NET Indicator
+Comment=NET indicator
+Exec=indicator-net
+Terminal=false
+Type=Application
+Icon=network-transmit-receive
+Categories=Utility;
+StartupNotify=false
+Name[pl]=NET Indicator
+X-GNOME-autostart-enabled=true
