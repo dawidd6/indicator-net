@@ -2,7 +2,7 @@ SRC=indicator-net
 DESTDIR=
 
 build:
-	g++ $(SRC).cpp -o $(SRC) -std=c++11 \
+	g++ $(SRC).cpp -o $(SRC) -std=c++11 -Wall \
 	`pkg-config --libs appindicator3-0.1 --cflags appindicator3-0.1`
 
 install:
