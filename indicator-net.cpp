@@ -24,7 +24,6 @@ static gboolean update(gpointer)
 	std::ifstream file_tx, file_rx;
 	file_tx.open(tx_path);
 	file_rx.open(rx_path);
-	//std::cout << tx_path << std::endl;
 	getline(file_tx, tx_new);
 	getline(file_rx, rx_new);
 	std::string out = "\u2193" + std::to_string((atoi(rx_new.c_str()) - atoi(rx_old.c_str())) / 1024) + " kB/s " + "\u2191" + std::to_string((atoi(tx_new.c_str()) - atoi(tx_old.c_str())) / 1024) + " kB/s";
@@ -39,7 +38,6 @@ static gboolean update(gpointer)
 static void change_interface(GtkMenuItem *item)
 {
 	interface = gtk_menu_item_get_label(item);
-	//std::cout << interface << std::endl;
 	tx_path = "/sys/class/net/" + interface + "/statistics/tx_bytes";
 	rx_path = "/sys/class/net/" + interface + "/statistics/rx_bytes";
 	std::ofstream config;
