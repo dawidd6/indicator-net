@@ -1,6 +1,6 @@
 SRC=indicator-net
 all:
-	g++ $(SRC).cpp -o $(SRC) -std=c++11 \
+	g++ $(SRC).cpp -o $(SRC) -std=gnu++11 \
 	`pkg-config --libs gtk+-3.0 --cflags gtk+-3.0` \
 	`pkg-config --libs appindicator3-0.1 --cflags appindicator3-0.1`
 
