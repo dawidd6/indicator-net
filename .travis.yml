@@ -12,3 +12,6 @@ addons:
 
 script:
 - make
+
+notifications:
+ email: false
