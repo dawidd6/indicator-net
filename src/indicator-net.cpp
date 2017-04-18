@@ -7,7 +7,7 @@
 
 /* Variables */
 GtkWidget *menu, *submenu;
-GtkWidget *item_quit, *item_interfaces, *item_list, *item_current_interface;
+GtkWidget *item_refresh, *item_quit, *item_list, *item_interfaces, *item_current_interface;
 AppIndicator *indicator;
 std::string tx_new, tx_old, rx_new, rx_old;
 std::string interface = "lo";
@@ -19,7 +19,7 @@ struct dirent *dir;
 DIR *path;
 
 /* Functions */
-static gboolean update(gpointer)
+static inline gboolean update(gpointer)
 {
 	std::ifstream file_tx, file_rx;
 	file_tx.open(tx_path);
@@ -35,7 +35,7 @@ static gboolean update(gpointer)
 	return 1;
 }
 
-static void change_interface(GtkMenuItem *item)
+static inline void change_interface(GtkMenuItem *item)
 {
 	interface = gtk_menu_item_get_label(item);
 	tx_path = "/sys/class/net/" + interface + "/statistics/tx_bytes";
@@ -49,6 +49,16 @@ static void change_interface(GtkMenuItem *item)
 
 static void get_interfaces()
 {
+	if(GTK_IS_WIDGET(item_interfaces))
+		gtk_widget_destroy(item_interfaces);
+	item_interfaces = gtk_menu_item_new_with_label("Interfaces");
+	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), item_interfaces, 1);
+
+	if(GTK_IS_WIDGET(submenu))
+		gtk_widget_destroy(submenu);
+	submenu = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item_interfaces), submenu);
+
 	if ((path = opendir("/sys/class/net/")))
 	{
 		while ((dir = readdir(path)))
@@ -63,6 +73,7 @@ static void get_interfaces()
 		}
 		closedir(path);
 	}
+	gtk_widget_show_all(menu);
 }
 
 /* Main */
@@ -81,15 +92,15 @@ int main(int argc, char *argv[])
 	}
 
 	menu = gtk_menu_new();
-	submenu = gtk_menu_new();
 
 	item_current_interface = gtk_menu_item_new_with_label(interface.c_str());
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_current_interface);
 	gtk_widget_set_sensitive(item_current_interface, FALSE);
 
-	item_interfaces = gtk_menu_item_new_with_label("Interfaces");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_interfaces);
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item_interfaces), submenu);
+
+	item_refresh = gtk_menu_item_new_with_label("Refresh");
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_refresh);
+	g_signal_connect(item_refresh, "activate", G_CALLBACK(get_interfaces), NULL);
 
 	item_quit = gtk_menu_item_new_with_label("Quit");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_quit);
