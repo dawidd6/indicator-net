@@ -1,15 +1,15 @@
 #Assembled by dawidd6
-COMPILER=g++
-CFLAGS=-std=c++11 `pkg-config --libs --cflags appindicator3-0.1`
+COMPILER=gcc
+CFLAGS=-std=c11 `pkg-config --libs --cflags appindicator3-0.1`
 PROGRAM=indicator-net
-SRC=$(wildcard src/*.cpp)
-OBJ=$(SRC:.cpp=.o)
+SRC=$(wildcard src/*.c)
+OBJ=$(SRC:.c=.o)
 START_COLOR=\033[0;33m
 CLOSE_COLOR=\033[m
 DESTDIR=
 
-src/%.o: src/%.cpp
-	@echo "$(START_COLOR)[CXX]$(CLOSE_COLOR)   $<"
+src/%.o: src/%.c
+	@echo "$(START_COLOR)[CC]$(CLOSE_COLOR)   $<"
 	@$(COMPILER) -c -o $@ $< $(CFLAGS)
 
 $(PROGRAM): $(OBJ)
