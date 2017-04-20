@@ -26,9 +26,6 @@ struct dirent *dir;
 DIR *path;
 
 /* Functions' declarations */
-inline void config_init();
-inline void indicator_init();
-inline void items_init();
 void interface_change(GtkMenuItem *item);
 void interface_get();
 static inline gboolean update(gpointer ptr);
@@ -40,42 +37,20 @@ int main(int argc, char *argv[])
 {
 	gtk_init(&argc, &argv);
 
-	config_init();
-	config_handle("r");
-	indicator_init();
-	items_init();
-	interface_get();
-
-	gtk_widget_show_all(menu);
-	gtk_main();
-	return 0;
-}
-
-/* Functions' definitions */
-void config_init()
-{
 	sprintf(config_path, "%s/.config/indicator-net.conf", getenv("HOME"));
 	strcpy(interface, "lo");
 	logger(5, COLOR_BLUE, "CONFIG: ", COLOR_NORM, "initialized = ", config_path);
-}
 
-void indicator_init()
-{
+	config_handle("r");
 
 	sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
 	sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
-
 	menu = gtk_menu_new();
-
 	indicator = app_indicator_new("indicator-net", "network-transmit-receive", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 	app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
 	app_indicator_set_menu(indicator, GTK_MENU(menu));
 	app_indicator_set_title(indicator, "NET Indicator");
-	g_timeout_add_seconds(1, update, NULL);
-}
 
-void items_init()
-{
 	item_current_interface = gtk_menu_item_new_with_label(interface);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_current_interface);
 	gtk_widget_set_sensitive(item_current_interface, FALSE);
@@ -87,8 +62,16 @@ void items_init()
 	item_quit = gtk_menu_item_new_with_label("Quit");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item_quit);
 	g_signal_connect(item_quit, "activate", gtk_main_quit, NULL);
+
+	interface_get();
+
+	g_timeout_add_seconds(1, update, NULL);
+	gtk_widget_show_all(menu);
+	gtk_main();
+	return 0;
 }
 
+/* Functions' definitions */
 gboolean update(gpointer ptr)
 {
 	file_tx = fopen(tx_path, "r");
