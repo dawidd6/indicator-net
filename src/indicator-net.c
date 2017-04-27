@@ -5,11 +5,6 @@
 #include <time.h>
 #include <dirent.h>
 
-#define COLOR_RED "\x1B[31m"
-#define COLOR_GREEN "\x1B[32m"
-#define COLOR_BLUE "\x1B[34m"
-#define COLOR_NORM "\x1B[0m"
-
 /* Vars */
 AppIndicator *indicator;
 GtkWidget *menu, *submenu;
@@ -30,7 +25,7 @@ void interface_change(GtkMenuItem *item);
 void interface_get();
 static inline gboolean update(gpointer ptr);
 void config_handle(const char *mode);
-void logger(unsigned int count, ...);
+void logger(const char *str, ...);
 
 /* Main */
 int main(int argc, char *argv[])
@@ -39,8 +34,7 @@ int main(int argc, char *argv[])
 
 	sprintf(config_path, "%s/.config/indicator-net.conf", getenv("HOME"));
 	strcpy(interface, "lo");
-	logger(5, COLOR_BLUE, "CONFIG: ", COLOR_NORM, "initialized = ", config_path);
-
+	logger("CONFIG: ", "initialized = ", config_path, NULL);
 	config_handle("r");
 
 	sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
@@ -132,30 +126,29 @@ void config_handle(const char *mode)
 			fscanf(config, "%s", interface);
 			sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
 			sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
-			logger(5, COLOR_BLUE, "CONFIG: ", COLOR_NORM, "loaded = ", interface);
+			logger("CONFIG: ", "loaded = ", interface, NULL);
 		}
 		else if(strcmp(mode, "w") == 0)
 		{
 			sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
 			sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
 			fprintf(config, "%s", interface);
-			logger(5, COLOR_BLUE, "CONFIG: ", COLOR_NORM, "written = ", interface);
+			logger("CONFIG: ", "written = ", interface, NULL);
 		}
 		fclose(config);
 	}
 }
 
-void logger(unsigned int count, ...)
+void logger(const char *str, ...)
 {
 	time_t mytime = time(0);
 	va_list vl;
-	printf("%s[%s]%s ", COLOR_GREEN, strtok(ctime(&mytime), "\n"), COLOR_NORM);
+	const char *tmp = str;
+	printf("[%s] %s", strtok(ctime(&mytime), "\n"), tmp);
 
-	va_start(vl, count);
-	for(unsigned int i = 0; i < count; i++)
-	{
-		printf("%s", va_arg(vl, const char *));
-	}
+	va_start(vl, str);
+	while(tmp = va_arg(vl, const char *))
+		printf("%s", tmp);
 	va_end(vl);
 
 	printf("\n");
