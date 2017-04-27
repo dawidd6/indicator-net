@@ -1,6 +1,6 @@
 #Assembled by dawidd6
 COMPILER=gcc
-CFLAGS=-std=c11 `pkg-config --libs --cflags appindicator3-0.1`
+CFLAGS=-Wall -std=c11 `pkg-config --libs --cflags appindicator3-0.1`
 PROGRAM=indicator-net
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)

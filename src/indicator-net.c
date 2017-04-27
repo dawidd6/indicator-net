@@ -147,7 +147,7 @@ void logger(const char *str, ...)
 	printf("[%s] %s", strtok(ctime(&mytime), "\n"), tmp);
 
 	va_start(vl, str);
-	while(tmp = va_arg(vl, const char *))
+	while((tmp = va_arg(vl, const char *)))
 		printf("%s", tmp);
 	va_end(vl);
 
