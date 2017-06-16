@@ -34,11 +34,13 @@ int main(int argc, char *argv[])
 
 	sprintf(config_path, "%s/.config/indicator-net.conf", getenv("HOME"));
 	strcpy(interface, "lo");
-	logger("CONFIG: ", "initialized = ", config_path, NULL);
-	config_handle("r");
-
 	sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
 	sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
+	file_tx = fopen(tx_path, "r");
+	file_rx = fopen(rx_path, "r");
+	config_handle("r");
+	logger("CONFIG: ", "initialized = ", config_path, NULL);
+
 	menu = gtk_menu_new();
 	indicator = app_indicator_new("indicator-net", "network-transmit-receive", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 	app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
@@ -62,22 +64,24 @@ int main(int argc, char *argv[])
 	g_timeout_add_seconds(1, update, NULL);
 	gtk_widget_show_all(menu);
 	gtk_main();
+	fclose(file_tx);
+	fclose(file_rx);
 	return 0;
 }
 
 /* Functions' definitions */
 gboolean update(gpointer ptr)
 {
-	file_tx = fopen(tx_path, "r");
-	file_rx = fopen(rx_path, "r");
 	fscanf(file_tx, "%ld", &tx_new);
 	fscanf(file_rx, "%ld", &rx_new);
 	sprintf(output, "\u2193 %ld kB/s \u2191 %ld kB/s", (rx_new - rx_old) / 1024, (tx_new - tx_old) / 1024);
 	app_indicator_set_label(indicator, output, NULL);
 	tx_old = tx_new;
 	rx_old = rx_new;
-	fclose(file_tx);
-	fclose(file_rx);
+	fflush(file_tx);
+	fflush(file_rx);
+	rewind(file_tx);
+	rewind(file_rx);
 	return 1;
 }
 
@@ -124,17 +128,17 @@ void config_handle(const char *mode)
 		if(strcmp(mode, "r") == 0)
 		{
 			fscanf(config, "%s", interface);
-			sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
-			sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
 			logger("CONFIG: ", "loaded = ", interface, NULL);
 		}
 		else if(strcmp(mode, "w") == 0)
 		{
-			sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
-			sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
 			fprintf(config, "%s", interface);
 			logger("CONFIG: ", "written = ", interface, NULL);
 		}
+		sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
+		sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
+		freopen(tx_path, "r", file_tx);
+		freopen(rx_path, "r", file_rx);
 		fclose(config);
 	}
 }
