@@ -9,16 +9,15 @@
 AppIndicator *indicator;
 GtkWidget *menu, *submenu;
 GtkWidget *item_refresh, *item_quit, *item_list, *item_interfaces, *item_current_interface;
-long int tx_new, tx_old, rx_new, rx_old;
+double tx_new, tx_old, rx_new, rx_old, tx, rx;
 char tx_path[50];
 char rx_path[50];
 char output[50];
+char format[30];
 char interface[10];
 char config_path[50];
 FILE *file_tx;
 FILE *file_rx;
-struct dirent *dir;
-DIR *path;
 
 /* Functions' declarations */
 void interface_change(GtkMenuItem *item);
@@ -72,9 +71,38 @@ int main(int argc, char *argv[])
 /* Functions' definitions */
 gboolean update(gpointer ptr)
 {
-	fscanf(file_tx, "%ld", &tx_new);
-	fscanf(file_rx, "%ld", &rx_new);
-	sprintf(output, "\u2193 %ld kB/s \u2191 %ld kB/s", (rx_new - rx_old) / 1024, (tx_new - tx_old) / 1024);
+	fscanf(file_tx, "%lf", &tx_new);
+	fscanf(file_rx, "%lf", &rx_new);
+	tx = tx_new - tx_old;
+	rx = rx_new - rx_old;
+
+	if(rx > 1024*1024)
+	{
+		rx = rx / (1024 * 1024);
+		strcpy(format, "\u2193 %.2lf MB/s ");
+	}
+	else if(rx > 1024)
+	{
+		rx = rx / 1024;
+		strcpy(format, "\u2193 %.2lf kB/s ");
+	}
+	else
+		strcpy(format, "\u2193 %.0lf B/s ");
+
+	if(tx > 1024*1024)
+	{
+		tx = tx / (1024 * 1024);
+		strcat(format, "\u2191 %.2lf MB/s");
+	}
+	else if(tx > 1024)
+	{
+		tx = tx / 1024;
+		strcat(format, "\u2191 %.2lf kB/s");
+	}
+	else
+		strcat(format, "\u2191 %.0lf B/s");
+
+	sprintf(output, format, rx , tx);
 	app_indicator_set_label(indicator, output, NULL);
 	tx_old = tx_new;
 	rx_old = rx_new;
@@ -94,6 +122,9 @@ void interface_change(GtkMenuItem *item)
 
 void interface_get()
 {
+	struct dirent *dir;
+	DIR *path;
+
 	if(GTK_IS_WIDGET(item_interfaces))
 		gtk_widget_destroy(item_interfaces);
 	item_interfaces = gtk_menu_item_new_with_label("Interfaces");
