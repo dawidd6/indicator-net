@@ -24,7 +24,6 @@ void interface_change(GtkMenuItem *item);
 void interface_get();
 static inline gboolean update(gpointer ptr);
 void config_handle(const char *mode);
-void logger(const char *str, ...);
 
 /* Main */
 int main(int argc, char *argv[])
@@ -38,7 +37,6 @@ int main(int argc, char *argv[])
 	file_tx = fopen(tx_path, "r");
 	file_rx = fopen(rx_path, "r");
 	config_handle("r");
-	logger("CONFIG: ", "initialized = ", config_path, NULL);
 
 	menu = gtk_menu_new();
 	indicator = app_indicator_new("indicator-net", "network-transmit-receive", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
@@ -157,34 +155,14 @@ void config_handle(const char *mode)
 	if(config)
 	{
 		if(strcmp(mode, "r") == 0)
-		{
 			fscanf(config, "%s", interface);
-			logger("CONFIG: ", "loaded = ", interface, NULL);
-		}
 		else if(strcmp(mode, "w") == 0)
-		{
 			fprintf(config, "%s", interface);
-			logger("CONFIG: ", "written = ", interface, NULL);
-		}
+
 		sprintf(tx_path, "/sys/class/net/%s/statistics/tx_bytes", interface);
 		sprintf(rx_path, "/sys/class/net/%s/statistics/rx_bytes", interface);
 		freopen(tx_path, "r", file_tx);
 		freopen(rx_path, "r", file_rx);
 		fclose(config);
 	}
-}
-
-void logger(const char *str, ...)
-{
-	time_t mytime = time(0);
-	va_list vl;
-	const char *tmp = str;
-	printf("[%s] %s", strtok(ctime(&mytime), "\n"), tmp);
-
-	va_start(vl, str);
-	while((tmp = va_arg(vl, const char *)))
-		printf("%s", tmp);
-	va_end(vl);
-
-	printf("\n");
 }
