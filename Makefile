@@ -24,8 +24,8 @@ install:
 	@install -d $(DESTDIR)/usr/share/applications
 	@install -d $(DESTDIR)/etc/xdg/autostart
 	@install $(PROGRAM) $(DESTDIR)/usr/bin
-	@install $(PROGRAM).desktop $(DESTDIR)/usr/share/applications
-	@install $(PROGRAM).desktop $(DESTDIR)/etc/xdg/autostart
+	@install -m 644 $(PROGRAM).desktop $(DESTDIR)/usr/share/applications
+	@install -m 644 $(PROGRAM).desktop $(DESTDIR)/etc/xdg/autostart
 
 uninstall:
 	@echo "$(START_COLOR)[RM]$(CLOSE_COLOR)   /usr/bin/$(PROGRAM)"
