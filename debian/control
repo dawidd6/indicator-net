@@ -1,12 +1,13 @@
 Source: indicator-net
 Section: misc
 Priority: optional
-Maintainer: dawidd6 <dawidd0811@gmail.com>
+Maintainer: Dawid Dziurla <dawidd0811@gmail.com>
 Build-Depends: debhelper (>=9), libgtk-3-dev, libappindicator3-dev
 Standards-Version: 3.9.7
 Homepage: https://github.com/dawidd6/indicator-net
 
 Package: indicator-net
 Architecture: any
-Depends: libappindicator3-1
+Depends: ${shlibs:Depends}, ${misc:Depends}, libappindicator3-1
 Description: NET Indicator
+ Ubuntu (unity) panel indicator 
