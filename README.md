@@ -31,7 +31,7 @@ This situation can be frustrating when one have e.g. Steam indicator next to the
 There is a solution, rather simple. Move indicator-net to the left.
 
 ```sh
-sudo echo "indicator-net=-1" >> "/usr/share/indicator-application/ordering-override.keyfile"
+echo "indicator-net=-1" |sudo tee -a "/usr/share/indicator-application/ordering-override.keyfile"
 ```
 
 Now logout and log back in. Should be fine from then.
