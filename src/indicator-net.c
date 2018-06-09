@@ -74,7 +74,7 @@ gboolean update(gpointer ptr)
 	tx = tx_new - tx_old;
 	rx = rx_new - rx_old;
 
-	if(rx > 1024*1024)
+	if(rx > 1048576)
 	{
 		rx = rx / (1024 * 1024);
 		strcpy(format, "\u2193 %.2lf MB/s ");
@@ -85,9 +85,9 @@ gboolean update(gpointer ptr)
 		strcpy(format, "\u2193 %.2lf kB/s ");
 	}
 	else
-		strcpy(format, "\u2193 %.0lf B/s ");
+		strcpy(format, "\u2193 0 kB/s ");
 
-	if(tx > 1024*1024)
+	if(tx > 1048576)
 	{
 		tx = tx / (1024 * 1024);
 		strcat(format, "\u2191 %.2lf MB/s");
@@ -98,7 +98,7 @@ gboolean update(gpointer ptr)
 		strcat(format, "\u2191 %.2lf kB/s");
 	}
 	else
-		strcat(format, "\u2191 %.0lf B/s");
+		strcat(format, "\u2191 0 kB/s");
 
 	sprintf(output, format, rx , tx);
 	app_indicator_set_label(indicator, output, NULL);
